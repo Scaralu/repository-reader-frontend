@@ -7,14 +7,10 @@ export default function App() {
   //**setRepositories** creates a completely new state and aggregate it in this const
   //**useState** sets our inicial state;
   useEffect(()=>{
-    getInitialData();
+    api.get('/repositories').then(response => {
+      setRepositories(response.data);
+    })
   }, []);
-
-  async function getInitialData(){
-    const initialData = await api.get('/repositories');
-    setRepositories(initialData.data);
-  };
-
 
   async function handleAddRepository() {
     const async_create = await api.post('/repositories', {
@@ -30,14 +26,8 @@ export default function App() {
     setRepositories([...repositories, repository]);
   }
   async function handleRemoveRepository(repositoryId) {
-    try{
-      const {status} = await api.delete(`/repositories/${repositoryId}`);
-      if (status === 204){
-        getInitialData();
-      }
-    } catch (err) {
-      console.log(err);
-    }
+      await api.delete(`/repositories/${repositoryId}`);
+      setRepositories(repositories.filter(repository => repository.id !== repositoryId))
   }
   return (
     <div>
