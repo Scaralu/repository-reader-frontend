@@ -1,42 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
+
+import api from './services/api';
+
 import "./styles.css";
-import api from "./services/api";
-export default function App() {
+
+function App() {
   const [repositories, setRepositories] = useState([]);
-  //**repositories** points to the actual state;
-  //**setRepositories** creates a completely new state and aggregate it in this const
-  //**useState** sets our inicial state;
-  useEffect(()=>{
-    api.get('/repositories').then(response => {
+
+  useEffect(() => {
+    api.get('repositories').then(response => {
       setRepositories(response.data);
-    })
-  }, []);
+    });
+}, []);
 
   async function handleAddRepository() {
-    const async_create = await api.post('/repositories', {
-      title: `GoStack with ReactJS ${Date.now()}`,
-      url: 'https://alou.com',
+    const response = await api.post('repositories', {
+      title: `Novo Repositório ${Date.now()}`,
+      url:  `https://github.com/scaralu/${Date.now()}`,
       techs: [
-        "React",
-        "React Native",
-        "Node.js"
-      ]
+        "NodeJS",
+        "ReactJS",
+        "FullStack",
+      ],
     });
-    const repository = async_create.data;
+
+    const repository = response.data;
+
     setRepositories([...repositories, repository]);
   }
-  async function handleRemoveRepository(repositoryId) {
-      await api.delete(`/repositories/${repositoryId}`);
-      setRepositories(repositories.filter(repository => repository.id !== repositoryId))
+
+  async function handleRemoveRepository(id) {
+    await api.delete(`repositories/${id}`, {});
+    setRepositories(repositories.filter(repository => repository.id !== id));
   }
+
   return (
     <div>
-      <h1>Repositories</h1>
       <ul data-testid="repository-list">
-        {repositories && repositories.map(repository => <li key = {repository.id}>{repository.title}
-        <button onClick={() => handleRemoveRepository(repository.id)}>Remover</button></li>)}
+
+      {repositories.map(repository => (
+        <li key={repository.id}>
+          {repository.title} 
+          <button onClick={() => handleRemoveRepository(repository.id)}>Remover</button>
+        </li>
+      ))}
+
+        {/* <li>
+          Repositório 1
+          <button onClick={() => handleRemoveRepository(1)}>
+            Remover
+          </button>
+        </li> */}
       </ul>
+
       <button onClick={handleAddRepository}>Adicionar</button>
     </div>
   );
 }
+
+export default App;
