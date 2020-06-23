@@ -8,7 +8,6 @@ export default function App() {
   //**useState** sets our inicial state;
   useEffect(()=>{
     getInitialData();
-    console.log("1")
   }, []);
 
   async function getInitialData(){
@@ -31,8 +30,14 @@ export default function App() {
     setRepositories([...repositories, repository]);
   }
   async function handleRemoveRepository(repositoryId) {
-    const async_delete = await api.delete(`/repositories/${repositoryId}`);
-    setRepositories(async_delete.data)
+    try{
+      const {status} = await api.delete(`/repositories/${repositoryId}`);
+      if (status === 204){
+        getInitialData();
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
   return (
     <div>
